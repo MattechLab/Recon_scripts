@@ -8,7 +8,7 @@ clear; clc;
 % Add a new txt file saved along side with the mask to log the details
 % =====================================================
 %%
-subject_num = 3;
+subject_num = 1;
 datasetDir = '/Users/cag/Documents/Dataset/datasets/MREyeTrack/';
 reconDir = '/Users/cag/Documents/Dataset/recon_results/250917MREyeTrack_nomo/';
 ETDir = '/Users/cag/Documents/forclone/hcph-sops-fork/code/eyetracking_MREyeTrack/masks_nomo/';
@@ -26,13 +26,13 @@ end
 
 
 if subject_num == 1
-    otherDir = [reconDir, '/Sub001/nomo//'];
+    otherDir = [reconDir, '/Sub001/nomo/other/'];
 elseif subject_num == 2
-    otherDir = [reconDir, '/Sub002/nomo/'];
+    otherDir = [reconDir, '/Sub002/T1_LIBRE_Binning/other/'];
 elseif subject_num == 3
-    otherDir = [reconDir, '/Sub003/nomo/'];
+    otherDir = [reconDir, '/Sub003/T1_LIBRE_Binning/other/'];
 else
-    otherDir = [reconDir, '/Sub004/nomo/'];
+    otherDir = [reconDir, '/Sub004/T1_LIBRE_Binning/other/'];
 end
 
 % Check if the directory exists
@@ -45,14 +45,14 @@ else
 end
 
 %%
-th_ratio = 0.9;
+th_ratio = 0.75;
 nShotOff = 0; 
 nSeg = 22; 
 winLen = 7;
 cri='nomo';
 mask_note = [sprintf('eMask_win%d_th%.2f_',winLen, th_ratio), cri];
 eMask = eyeGenerateBinningWin(datasetDir, nShotOff, nSeg,th_ratio, ETDir, winLen, true);
-disp(['Preserved readout number: ',num2str(nnz(eMask))])
+
 % Saving data and Convert to Monalisa format
 %--------------------------------------------------------------------------    
 

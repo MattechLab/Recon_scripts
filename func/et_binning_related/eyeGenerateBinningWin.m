@@ -114,7 +114,7 @@ function cMask = eyeGenerateBinningWin(datasetDir, nShotOff, nSeg,th_ratio, ETDi
                 % the timestamp of the current mri meas 
                 timeSeg = TimeStamp_ms(k);
                     
-                win_lower = round(max(0, timeSeg - HalfWinWidth));
+                win_lower = round(max(1, timeSeg - HalfWinWidth));
                 win_upper = round(min(numel(mask_method_1),timeSeg + HalfWinWidth));
                        
                 window_data = mask_method_1(win_lower:win_upper);

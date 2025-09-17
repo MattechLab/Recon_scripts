@@ -4,20 +4,20 @@
 %%
 clc; 
 addpath(genpath('/Users/cag/Documents/forclone/mapVBVD_Jaime'));
-raw_data = ['/Users/cag/Documents/Dataset/datasets/250822/' ...
-    'meas_MID00157_FID314156_JB_LIBRE2p2_a8_woPERewinder.dat'];
+raw_data = ['/Users/cag/Documents/Dataset/datasets/250905/' ...
+    'meas_MID00347_FID55401_Yann_seq_vx0p5_fov60.dat'];
 %meas_MID00157_FID314156_JB_LIBRE2p2_a8_woPERewinder
 % meas_MID00159_FID314158_t1w_swap_1.dat
 twix = mapVBVD_JB(raw_data);
 %% 
-seqHash_twix = twix{1,2}.hdr.Dicom.tSequenceVariant;
+seqHash_twix = twix{1,1}.hdr.Dicom.tSequenceVariant;
 
 if length(seqHash_twix)==32
     fprintf(['raw data contain pulseq-file signature ' seqHash_twix '\n']);
 end
 %%
-seqFile = ['/Users/cag/Documents/forclone/pulseq4mreye/archive/debug_0616/' ...
-    'seq1_t1w_libre_debugTR6p2_rfdelay_gain_1.seq'];
+seqFile = ['/Users/cag/Documents/Dataset/datasets/250905' ...
+    '/gre_rad_SmallT2star.seq'];
 
 % Read the entire content of the .seq file
 raw = fileread(seqFile);

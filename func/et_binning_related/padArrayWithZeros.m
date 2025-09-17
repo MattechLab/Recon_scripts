@@ -8,8 +8,8 @@ function result = padArrayWithZeros(inputArray, desiredLength)
         numZeros = desiredLength - currentLength;
         
         % Prepend zeros to the beginning of the array
-        result = [zeros(1, numZeros), inputArray];
-        disp('Padding the zeros at the beginning')
+        result = [inputArray, zeros(1, numZeros)];
+        disp('Padding the zeros at the end!')
     else
         % If the length is already sufficient, return the array unchanged
         result = inputArray;
