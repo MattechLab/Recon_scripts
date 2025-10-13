@@ -34,6 +34,11 @@ function interactive_box_mapper(volume)
     btn = uicontrol('Style','pushbutton','String','Save','Position',[20 20 100 40],...
                     'Callback',@saveMask);
 
+    % Dimension display text
+    dimText = uicontrol('Style','text', 'Position',[140 20 300 40], ...
+        'String','Box size: Dx × Dy × Dz = ?, ?, ?', ...
+        'FontSize', 12, 'HorizontalAlignment','left');
+
     % Update everything initially
     update();
 
@@ -86,6 +91,13 @@ function interactive_box_mapper(volume)
         im_m_xy.CData = mappedVolume(:,:,cz_m);
         im_m_yz.CData = squeeze(mappedVolume(cx_m,:,:))';
         im_m_xz.CData = squeeze(mappedVolume(:,cy_m,:))';
+
+                % Display size of the box
+        dx = numel(x_rng);
+        dy = numel(y_rng);
+        dz = numel(z_rng);
+        dimText.String = sprintf('Box size: Dx × Dy × Dz = %d × %d × %d', dx, dy, dz);
+        
     end
 
     function saveMask(~,~)

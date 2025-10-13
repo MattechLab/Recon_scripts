@@ -6,32 +6,23 @@ addpath(genpath('/Users/cag/Documents/forclone/monalisa'));
 
 saveflag = 0;
 %% Initialize the directories and acquire the Coil
-subject_num = 10;
-datasetDir = '/Users/cag/Documents/Dataset/datasets/250919/';
-reconDir = '/Users/cag/Documents/Dataset/recon_results/250919/';
-seqFolder = "/Users/cag/Documents/Dataset/datasets/250919/";
+subject_num = 2;
+datasetDir = '/Users/cag/Documents/Dataset/datasets/250917/';
+reconDir = '/Users/cag/Documents/Dataset/recon_results/250917/';
+seqFolder = "/Users/cag/Documents/Dataset/datasets/250917/";
 mask_note_list{2}= 'swap1_FA4_RF2_rfmod2_traj0Orig_PhNeg';
 mask_note_list{10}= 'swap1_FA6_RF2_rfmod2_trajOrig_PhNeg';
 
 mask_note = mask_note_list{subject_num};
 
 if subject_num == 2
-    meas_name_suffix = '_MID00292_FID59708_yiweiseq2';
+    meas_name_suffix = '_MID00177_FID317803_yj_seq2';
     hc_name_suffix = ' ';
     bc_name_suffix = ' ';
-    coilsens_name_suffix = '_MID00290_FID59706_AdjCoilSens';
+    coilsens_name_suffix = '_MID00175_FID317801_AdjCoilSens';
     nShot = 1000;
     nSeg = 22;
     seqName = "yj_seq2_t1w_libre_part_TR6.2ms_TE3.6ms_swap1_FA4_RF2_rfmod2_traj0Orig_PhNeg.seq";
-
-elseif subject_num == 10
-    meas_name_suffix = '_MID00293_FID59709_yiweiseq10';
-    hc_name_suffix = ' ';
-    bc_name_suffix = ' ';
-    coilsens_name_suffix = '_MID00290_FID59706_AdjCoilSens';
-    nShot = 1000;
-    nSeg = 22;
-    seqName = "yj_seq10_t1w_libre_part_TR6.2ms_TE3.6ms_swap1_FA6_RF2_rfmod2_trajOrig_PhNeg.seq";
 
 end
 
@@ -44,13 +35,13 @@ measureFile = [datasetDir, meas_name,'.dat'];
 bodyCoilFile = [datasetDir, bc_name,'.dat'];
 arrayCoilFile = [datasetDir, hc_name,'.dat'];
 coilSenseFile = [datasetDir, coilsense_name,'.dat'];
-%% Load and Configure Data
+% Load and Configure Data
 reader = createRawDataReader(measureFile, true); %true: automatic--disable UI false: check UI
 % Acquisition from Bern need to manually define the following part!!
 reader.acquisitionParams.nSeg = nSeg;
 reader.acquisitionParams.nShot = nShot; % in case no validation UI
 reader.acquisitionParams.nShot_off = 20;
-%%
+%
 if subject_num == 0 %no idea sequence in this dataset
     reader.acquisitionParams.traj_type = 'full_radial3_phylotaxis';
 else
@@ -64,7 +55,7 @@ end
 % Ensure consistency in number o1f shot-off points
 nShotOff = reader.acquisitionParams.nShot_off;
 
-%% Parameters
+% Parameters
 dK_u = [1, 1, 1] ./ reader.acquisitionParams.FoV;   % Cartesian grid spacing
 N_u = [48, 48, 48];             % Adjust this value as needed
 nCh_array =  reader.acquisitionParams.nCh;

@@ -93,6 +93,7 @@ tObjCellar                          = mapVBVD_JH_calibScan(coilSenseFile);
 tObj_calibScan                      = tObjCellar{ind_calibScan}; 
 
 tObjCellar      = mapVBVD_JH_for_monalisa(measureFile);
+if size(tObjCellar,2)
 tObj_mainScan   = tObjCellar{end};
 
 
