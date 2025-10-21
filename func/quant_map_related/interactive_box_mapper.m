@@ -1,4 +1,3 @@
-interactive_box_mapper(abs(xrms));
 
 function interactive_box_mapper(volume)
     % INPUT: volume - a 3D matrix (e.g. size 120x120x120)

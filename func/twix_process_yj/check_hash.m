@@ -48,7 +48,8 @@ seqHash_twix   = char(twixObj{twix_idx}.hdr.Dicom.tSequenceVariant);  % already 
 while numel(seqHash_twix) ~= 32
     warning('Sequence hash in TWIX %d header is not 32 characters – aborting.', ...
         twix_idx);
-    seqHash_twix   = char(twixObj{twix_idx+1}.hdr.Dicom.tSequenceVariant);  % already 32 chars
+    twix_idx = twix_idx+1;
+    seqHash_twix   = char(twixObj{twix_idx}.hdr.Dicom.tSequenceVariant);  % already 32 chars
 end
 fprintf('TWIX file contains Pulseq signature: %s\n', seqHash_twix);
 

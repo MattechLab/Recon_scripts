@@ -11,7 +11,11 @@ datatype = 2;
 subject_suffix = {'_ml', '_jb', '_yj',  '_phantom'};
 mask_note_list{1}= 'pq_ori'; mask_note_list{2}= 'pq_ptp';
 mask_note = mask_note_list{datatype};
-
+if datatype == 1 || datatype == 3
+    c_note = 'mask_pq_ori';
+else
+    c_note = 'mask_pq_ptp';
+end
 datasetDir = ['/Users/cag/Documents/Dataset/datasets/251007_chuv_abs/', 'sub',num2str(subject_num), subject_suffix(subject_num), '/'];
 seqFolder = ['/Users/cag/Documents/Dataset/datasets/251007_chuv_abs/', 'sub', num2str(subject_num), subject_suffix(subject_num), '/'];
 reconDir = ['/Users/cag/Documents/Dataset/recon_results/251007_chuv_abs/', 'sub', num2str(subject_num), subject_suffix(subject_num), '/'];

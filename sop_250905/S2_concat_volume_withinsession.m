@@ -143,12 +143,7 @@ img2_scaled = (img2 - min(img2(:))) / (max(img2(:)) - min(img2(:)));
 disp('Scaling Done')
 end
 
-function [diff_img]=diff_volume(img1,img2)
-[img1_s,img2_s] = norm_two_image(img1,img2);
-diff_img = img1_s-img2_s;
-disp(max(diff_img(:)))
-disp(min(diff_img(:)))
-end
+
 
 function V_rot = rotate_volume(V,theta)
 V = double(abs(V));

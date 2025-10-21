@@ -1,44 +1,60 @@
 close all;clc;
 %% please load your recon image here
 % xrms is a 3D volume
-sliceIdx = 120; % select the slice index
-imgSlice_idea =xrms_idea(:,:,sliceIdx);
-imgSlice_pulseq =xrms_pulseq(:,:,sliceIdx);
-
-imgSlice_idea = normImage(imgSlice_idea);
-imgSlice_pulseq = normImage(imgSlice_pulseq);
-%%
-SelectBack=1;
-CalSNR = 1; % 1: calculate SNR -- 0: no SNR
+for sliceIdx = 92:2:111 % select the slice index
+imgSlice_idea =normImage(x_phm_idea(:,:,sliceIdx));
+imgSlice_pulseq =normImage(x_phm_pq(:,:,sliceIdx));
 
 
-cc = 1; % set the phantom circle index
+%% Prepare the ROI masks
+
+CalSNR = 0; % 1: calculate SNR -- 0: no SNR
+
+for cc = 0% set the phantom circle index
 imgIdx = 1; % set the image index for defining note suffix
 note_suffix = strcat('cc', num2str(cc), '_sl', num2str(sliceIdx), '_img', num2str(imgIdx)); % cc1 for 'circle 1'
-roiShape = 'rect'; %option: 'circle' 'rect'
-cal_roi_mask(imgSlice, roiShape, SelectBack, CalSNR, note_suffix);
-%% You can check the overlay here
+roiShape = 'poly'; %option: 'circle' 'rect'
+    if cc==1
+        SelectBack=1;
+    else
+        SelectBack=0;
+    end
+cal_roi_mask(imgSlice_idea, roiShape, SelectBack, CalSNR, note_suffix);
+end
+end
 
-check_overlay_mask_img(maskBg, imgSlice_idea);
-check_overlay_mask_img(maskBg, imgSlice_pulseq);
+%% optional You can check the overlay here
+
+check_overlay_mask_img(maskROI_cc0_sl121_img1, imgSlice_idea.*maskROI_cc0_sl121_img1);
+% check_overlay_mask_img(maskBg, imgSlice_pulseq);
 %%
-close all;
+maskROI_array = {maskROI_cc1_sl120_img1, maskROI_cc2_sl120_img1, ...
+    maskROI_cc3_sl120_img1, maskROI_cc4_sl120_img1, ...
+    maskROI_cc5_sl120_img1, maskROI_cc6_sl120_img1, ...
+    maskROI_cc7_sl120_img1, maskROI_cc8_sl120_img1,...
+    maskROI_cc9_sl120_img1, maskROI_cc10_sl120_img1, ...
+    maskROI_cc11_sl120_img1, maskROI_cc12_sl120_img1,...
+    maskROI_cc13_sl120_img1, maskROI_cc14_sl120_img1,...
+    maskROI_cc15_sl120_img1, maskROI_cc16_sl120_img1,...
+    maskROI_cc17_sl120_img1, maskROI_cc18_sl120_img1};
+
+
+%%
+close all; 
+checkOverlay=0;
+% [92,121]
+for sliceIdx = 92:121 % select the slice index
+imgSlice_idea =normImage(x_phm_idea(:,:,sliceIdx));
+imgSlice_pulseq =normImage(x_phm_pq(:,:,sliceIdx));
+
 % reorder the mask from 1 to 18
-maskROI_array = {maskROI_cc15_sl120_img1, maskROI_cc11_sl120_img1, ...
-    maskROI_cc5_sl120_img1, maskROI_cc3_sl120_img1, ...
-    maskROI_cc17_sl120_img1, maskROI_cc13_sl120_img1, ...
-    maskROI_cc7_sl120_img1, maskROI_cc1_sl120_img1,...
-    maskROI_cc18_sl120_img1, maskROI_cc14_sl120_img1, ...
-    maskROI_cc9_sl120_img1, maskROI_cc6_sl120_img1,...
-    maskROI_cc2_sl120_img1, maskROI_cc16_sl120_img1,...
-    maskROI_cc12_sl120_img1, maskROI_cc10_sl120_img1,...
-    maskROI_cc8_sl120_img1, maskROI_cc4_sl120_img1};
 
 snr_estimate_list_idea = {};
 for maskIndex = 1: length(maskROI_array) 
     maskROI = maskROI_array{maskIndex};
-    
+    if checkOverlay
     check_overlay_mask_img(maskROI, imgSlice_idea);
+    end
     roi_values = imgSlice_idea(maskROI);
     bg_values = imgSlice_idea(maskBg);
     snr_estimate = calSNR(roi_values, bg_values);
@@ -49,8 +65,9 @@ clear roi_values bg_values snr_estimate;
 snr_estimate_list_pulseq = {};
 for maskIndex = 1: length(maskROI_array) 
     maskROI = maskROI_array{maskIndex};
-    
+    if checkOverlay
     check_overlay_mask_img(maskROI, imgSlice_pulseq);
+    end
 
     roi_values = imgSlice_pulseq(maskROI);
     bg_values = imgSlice_pulseq(maskBg);
@@ -58,27 +75,18 @@ for maskIndex = 1: length(maskROI_array)
     snr_estimate_list_pulseq{maskIndex} = snr_estimate;
 end
 clear roi_values bg_values snr_estimate;
-%%
+%
 snr1 = cell2mat(snr_estimate_list_idea);
 snr2 = cell2mat(snr_estimate_list_pulseq);
 
-%% Paired line plot
-colors = lines(18);  % or use 'parula(18)', 'jet(18)', etc.
-figure; set(gcf, 'Color', 'w');
-hold on;
-for i = 1:18
-    plot([1 2], [snr1(i), snr2(i)], '-o', 'Color', colors(i,:), 'LineWidth', 1.5);
-end
-xticks([1 2]);
-xticklabels({'IDEA LIBRE 6p2', 'pulseq LIBRE 6p2'});
-ylabel('SNR');
-title('Paired SNR Comparison');
-grid on;
+% Format the filename with slice number (zero-padded to 2 digits)
+filename = sprintf('snr_slice%02d.mat', sliceIdx);
+snrPath = ['/Users/cag/Documents/Dataset/recon_results/251006_bern_abs/sub4_phantom/ver2_bg_better/', filename];
+save(snrPath, 'snr1', 'snr2');
+fprintf('Saved: %s\n', filename);
 
-% Optional: show group means
-plot([1 2], [mean(snr1), mean(snr2)], 'k*-', 'LineWidth', 2);
-legend('Individual pairs','Group mean');
-%%
+
+%
 % Plot
 figure; hold on;
 plot(1:18, snr1, '-o', 'LineWidth', 2, 'DisplayName', 'IDEA LIBRE 6p2' );
@@ -91,6 +99,23 @@ title('SNR Comparison Across Pairs');
 legend('Location', 'best');
 grid on;
 set(gcf, 'Color', 'w');  % white figure background
+end
+%% optional Paired line plot
+% colors = lines(18);  % or use 'parula(18)', 'jet(18)', etc.
+% figure; set(gcf, 'Color', 'w');
+% hold on;
+% for i = 1:18
+%     plot([1 2], [snr1(i), snr2(i)], '-o', 'Color', colors(i,:), 'LineWidth', 1.5);
+% end
+% xticks([1 2]);
+% xticklabels({'IDEA LIBRE 6p2', 'pulseq LIBRE 6p2'});
+% ylabel('SNR');
+% title('Paired SNR Comparison');
+% grid on;
+% 
+% % Optional: show group means
+% plot([1 2], [mean(snr1), mean(snr2)], 'k*-', 'LineWidth', 2);
+% legend('Individual pairs','Group mean');
 %%
 function cal_roi_mask(imageSlice, roiShape, SelectBack, CalSNR, note_suffix)
     % imageSlice: 2D matrix (e.g., one MRI slice)
@@ -134,7 +159,10 @@ function [roi_values, mask]= select_ROI(imageSlice, shapeInfo)
         title('Draw a rect ROI. Double-click to confirm.'); 
         % Let user select rectangular background
         h = imrect(gca, []);
-       
+    elseif strcmp(shapeInfo, 'poly')
+       title('Draw a polygon ROI. Double-click to confirm.'); 
+        % Let user select rectangular background
+        h = impoly(gca, []);
     end
 
     % Create binary mask from the selected region
