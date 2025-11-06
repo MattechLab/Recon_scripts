@@ -1,0 +1,44 @@
+load('/Users/cag/Documents/Dataset/recon_results/251022/sub1_hemo/nav_readouts.mat');
+%%
+
+[N, nCh, nLine] = size(nav_readouts);
+
+ref_idx = 1:max(1, round(0.05*nLine));         % first ~5% lines; tune as needed
+ref = mean(nav_readouts(:,:,ref_idx), 3); % [480 x 42]
+
+den = sqrt(sum(abs(ref).^2, 2));           % [480 x 1]
+w = conj(ref) ./ max(den, eps);            % [480 x 42], unit-gain weights per sample
+w = reshape(w, [N, nCh, 1]);
+
+% Apply weights and sum over channels → [480 x L] complex
+fid_comb = squeeze(sum(nav_readouts .* w, 2));   % implicit expansion, R2016b+
+%%
+vref = fid_comb;                  % reference vector (first bin); use mean(...) if preferred
+vref = vref / max(norm(vref), eps);
+%%
+proj  = fid_comb(:,1:10000).' * vref(:,1:10000);                % [nBin x 1] complex projection onto reference
+amp   = abs(proj);                          % amplitude per bin
+phase = unwrap(angle(proj));                % phase per bin (unwrap for continuity)
+
+%%
+X = reshape(nav_readouts, N*nCh, nLine).';     % [L x (N*Ch)] complex
+X = [real(X) imag(X)];                     % [L x (2*N*Ch)] real
+X = zscore(X, 0, 1);                       % z-score features (column-wise)
+%%
+K = 10;                                    % tune as needed
+[coeff, score, latent] = pca(X, 'NumComponents', K);  % score: [L x K]
+%%
+sum_fid = squeeze(sum(nav_readouts,2));
+%%
+sum_fid = abs(sum_fid);
+sum_fid_norm = sum_fid_filled./(sum_fid_filled - min(sum_fid_filled(:))).*(max(sum_fid_filled(:)) - min(sum_fid_filled(:)));
+%%
+sum_fid_filled = fillmissing(sum_fid, 'constant', 0);
+%%
+anyNonFinite = ~all(isfinite(sum_fid(:)))      % true if any NaN/Inf anywhere
+colHasNaN    = any(isnan(abs(sum_fid)),1);          % 1xL: columns containing NaN
+nnz(colHasNaN), size(sum_fid,2)                % how many columns are affected?
+%%
+feat = sum(abs(sum_fid_filled).^2, 1, 'omitnan');     % or: mean(abs(sum_fid),1)
+
+plot(feat); xlabel('line'); ylabel('energy'); title('Navigator energy per line');

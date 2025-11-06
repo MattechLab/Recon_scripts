@@ -17,8 +17,22 @@ function make_slice_gif(matFile, varName, i1, i2, gifName, delay)
 %   Example
 %     makeSliceGif('volume.max','x',30,80);
 % ---------------- load volume ----------------------
-S = load(matFile, varName);                     % assumes .mat is a MAT-file
-vol = abs(S.(varName));                         % magnitude
+if isfile(matFile)
+    S = load(matFile, varName);                     % assumes .mat is a MAT-file
+    vol = S.(varName);                         % magnitude
+else
+    vol = matFile;
+end
+
+if iscell(vol)
+    vol = abs(cell2mat(vol));
+else
+    vol = abs(vol);
+end
+
+    
+
+
 gifFolder = fileparts(matFile);
 % ---------------- default arguments ----------------
 if nargin < 3 || isempty(i1)
