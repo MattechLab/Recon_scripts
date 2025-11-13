@@ -66,13 +66,13 @@ end
 end
 
 %
-x1 = cat(2, x_c_set{1,1}.x, x_c_set{1,2}.x);
+x1 = cat(2, norm_image(x_c_set{1,1}.x), norm_image(x_c_set{1,2}.x));
 bmImage(x1)
 
 x2 = cat(2, x_c_set{2,1}.x, x_c_set{2,2}.x);
 bmImage(x2)
 
-x3 = cat(2, x_c_set{3,1}.x, x_c_set{3,2}.x);
+x3 = cat(2,norm_image(x_c_set{3,1}.x) , x_c_set{3,2}.x);
 bmImage(x3)
 
 
