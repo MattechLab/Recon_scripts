@@ -1,23 +1,23 @@
 %%
 close all;clc
-x{1}= x1;
-x{2}=x2;
-x{3} = flip(flip(flip(x3,1),2),3);
-x{4} = x4;
+x{1}= xrms_idea;
+x{2} =xrms_hs;
+% x{3} = flip(flip(flip(x3,1),2),3);
+% x{4} = x4;
 %%
 
-% x1_trans = norm_image(x{1});
-% x1_sag = norm_image(rot90(permute(x1_trans, [1,3,2]), 1));
-% x1_coronal = norm_image(permute(x1_trans, [3,2,1]));
-% bmImage(x1_trans);
-% bmImage(x1_sag);
+x1_sag = norm_image(x{1});
+x1_trans = norm_image(rot90(permute(x1_sag, [1,3,2]), 1));
+x1_coronal = norm_image(permute(x1_sag, [3,2,1]));
+bmImage(x1_trans);
+bmImage(x1_sag);
 
 % bmImage(x1_coronal);
 
-x2_trans = norm_image(x{2});
-x2_sag = norm_image(rot90(permute(x2_trans, [1,3,2]),1));
-x2_coronal = norm_image(permute(x2_trans, [3,2,1]));
-% bmImage(x2_trans);
+x2_sag = norm_image(x{2});
+x2_trans = norm_image(rot90(permute(x2_sag, [1,3,2]),1));
+x2_coronal = norm_image(permute(x2_sag, [3,2,1]));
+bmImage(x2_trans);
 bmImage(x2_sag);
 % bmImage(x2_coronal);
 
@@ -28,12 +28,12 @@ bmImage(x2_sag);
 % bmImage(x3_sag);
 % bmImage(x3_coronal);
 
-x4_trans = norm_image(flip(flip(permute(x{4}, [2,3,1]),1),2));
-x4_sag = norm_image(flip(flip(permute(x4_trans, [1,3,2]),1),2));
-x4_coronal = norm_image(permute(x4_trans, [3,2,1]));
-% bmImage(x4_trans);
-bmImage(x4_sag);
-% bmImage(x4_coronal)
+% x4_trans = norm_image(flip(flip(permute(x{4}, [2,3,1]),1),2));
+% x4_sag = norm_image(flip(flip(permute(x4_trans, [1,3,2]),1),2));
+% x4_coronal = norm_image(permute(x4_trans, [3,2,1]));
+% % bmImage(x4_trans);
+% bmImage(x4_sag);
+% % bmImage(x4_coronal)
 %% Compare hypersech T2-prep 
 % x2_sag T=40ms, x4_sag T=80ms
 show_image = [];

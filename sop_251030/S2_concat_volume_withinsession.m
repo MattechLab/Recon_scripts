@@ -63,20 +63,20 @@ x_jb = cat(2, x2_trans, x7_trans, x4_trans);
 x_pq = cat(2, x3_trans, x8_trans, x5_trans);
 bmImage(cat(1,x_jb,x_pq));
 %%
-img_1_2_trans = cat(1,x1_trans, x2_trans);
+img_1_2_trans = cat(1,x3_trans, x5_trans);
 bmImage(img_1_2_trans)
 
-img_1_2_sag = cat(1,x1_sag, x2_sag);
-bmImage(img_1_2_sag)
+% img_1_2_sag = cat(1,x1_sag, x2_sag);
+% bmImage(img_1_2_sag)
  
 
 
 %% ===== transverse ====================
 % close all;
 offset = 0;
-sl_start = 90+offset;
-inc=8;
-sl_end=128+offset;
+sl_start = 87+offset;
+inc=1;
+sl_end=90+offset;
 
 % show_image = img2_trans(:,:,sl_start);%90+14:6:126+14
 show_image = img_1_2_trans(:,:,sl_start);
