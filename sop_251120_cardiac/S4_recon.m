@@ -1,63 +1,39 @@
 clear;clc; 
-% =====================================================
-% Author: Yiwei Jia
-% Date: 25 Oct 03
-% ------------------------------------------------
-% Recon on debi
-% =====================================================
-
+%first finish the codes here, then adapt to chacha_recon
 
 %%
-dataset_label = '251006_bern_abs'; %or '251007_chuv_abs'
-cs_recon=1;
-subject_num = [1,2,3,4]
-datatype = [4]
 
-subject_suffix = {'_ml', '_jb', '_yj',  '_phantom'};
-mask_note_list{1}= 'idea_ori'; mask_note_list{2}= 'idea_ptp';
-mask_note_list{3}= 'pq_ori'; mask_note_list{4}= 'pq_ptp';
-mask_note = mask_note_list{datatype};
-if datatype == 1 || datatype == 3
-    c_note = 'mask_ori';
-else
-    c_note = 'mask_ptp';
-end
+reconDir = '/Users/cag/Documents/Dataset/recon_results/251120_card/';
 
-    
-datasetDir = ['/Users/cag/Documents/Dataset/datasets/', dataset_label, ...
-    '/sub',num2str(subject_num), subject_suffix(subject_num), '/'];
-datasetDir = [datasetDir{:}];
-reconDir = ['/Users/cag/Documents/Dataset/recon_results/',dataset_label, ...
-    '/sub', num2str(subject_num), subject_suffix(subject_num), '/'];
-reconDir = [reconDir{:}];
+lowcut_card =  0.9;
+highcut_card = 1.1; 
+nrCardThreshold = 10;
+mask_note = sprintf('card_th%d_low%.1f_high%.1f', nrCardThreshold, lowcut_card, highcut_card);
 
-x0Dir = [reconDir, '/T1_LIBRE_woBinning/output/mask_',mask_note,'/'];
-xDir = [reconDir, '/T1_LIBRE_woBinning/output/mask_',mask_note,'/'];
-
-mDir = [reconDir,'/T1_LIBRE_woBinning/mitosius/mask_', mask_note, '/'];
+mDir = [reconDir, '/mitosius/', mask_note, '/'];
 
 
+saveCDirList = {'/C/'};
 
-saveCDir     = [reconDir,'/T1_LIBRE_woBinning/C/', c_note];
+
 CfileName = 'C.mat';
-saveCDir = [reconDir, saveCDirList{2}];
+saveCDir = [reconDir, saveCDirList{1}];
 CfilePath = fullfile(saveCDir, CfileName);
-
 
 %
 y   = bmMitosius_load(mDir, 'y'); 
 t   = bmMitosius_load(mDir, 't'); 
 ve  = bmMitosius_load(mDir, 've'); 
-    
+
 disp('Mitosius has been loaded!')
 disp(mDir)
 %% compileScript()
-Matrix_size = 240;
+Matrix_size = 120;
 ReconFov = 240; %mm
 N_u     = [Matrix_size, Matrix_size, Matrix_size]; % Matrix size: Size of the Virtual cartesian grid in the fourier space (regridding)
 n_u     = [Matrix_size, Matrix_size, Matrix_size]; % Image size (output)
 dK_u    = [1, 1, 1]./ReconFov; % Spacing of the virtual cartesian grid
-nFr     = 1; 
+nFr     = size(y,1); 
 % best achivable resolution is 1/ N_u*dK_u If you have enough coverage
 %%
 
@@ -65,16 +41,31 @@ load(CfilePath);
 C = bmImResize(C, [48, 48, 48], N_u);
 
 %
+serial = false;
+if serial
+    nCh = 44; 
+    x0 = bmZero([N_u,nCh], 'complex_single'); 
+    for i = 1:nCh
+        x0(:, :, :, i) = bmMathilda(y{1}(:, i), t{1}, ve{1}, [], N_u, n_u, dK_u, [], [], [], []);
+    
+    end
+    x0 = bmCoilSense_pinv(C, x0, N_u); 
+    bmImage(x0);
 
-x0 = cell(nFr, 1);
-for i = 1:nFr
-    x0{i} = bmMathilda(y{i}, t{i}, ve{i}, C, N_u, n_u, dK_u, [], [], [], []);
+else
+    x0 = cell(nFr, 1);
+    for i = 1:nFr
+        x0{i} = bmMathilda(y{i}, t{i}, ve{i}, C, N_u, n_u, dK_u, [], [], [], []);
+    end
+    % isequal(x0_p, x0)
+    %
+    bmImage(x0);
 end
-% isequal(x0_p, x0)
-%
-bmImage(x0);
 
-%
+%%
+
+x0Dir = [reconDir,'/output/', mask_note,'/'];
+
 if ~isfolder(x0Dir)
     % If it doesn't exist, create it
     mkdir(x0Dir);
@@ -89,26 +80,25 @@ disp('x0 has been saved here:')
 disp(x0Path)
 
 %%
-if cs_recon
 
 [Gu, Gut] = bmTraj2SparseMat(t, ve, N_u, dK_u);
-% bmSteva
-deltaArray = 1;
+%% bmSteva
 
 % nIter = 30; % iterations before stopping
 nIter = 15; %20, 30
-witness_ind = [15,18];
-delta = deltaArray(1);
-% delta     = 0.1; %0.01, 0.1, 1
+witness_ind = [15,18,19];
+
+delta     = 0.1; %0.01, 0.1, 1
 rho       = 10*delta;
 nCGD      = 4;
 ve_max    = 10*prod(dK_u(:));
 if nFr<= 1
-
+    witness_info = bmWitnessInfo('stevaMorphosia_d0p1_r1_nCGD4', witness_ind);
+    witness_info.save_witnessIm_flag = true;
     x = bmSteva(  x0{1}, [], [], y{1}, ve{1}, C, Gu{1}, Gut{1}, n_u, ...
                                         delta, rho, nCGD, ve_max, ...
                                         nIter, ...
-                                        bmWitnessInfo('steva_d1_r10_nCGD4', witness_ind));
+                                        witness_info);
 else
     witness_info = bmWitnessInfo('tevaMorphosia_d0p1_r1_nCGD4', witness_ind);
     witness_info.save_witnessIm_flag = true;
@@ -124,10 +114,8 @@ else
 end
 
 bmImage(x)
-
-
-
-
+%%
+xDir = [reconDir, '/output/',mask_note,'/'];
 if ~isfolder(xDir)
     % If it doesn't exist, create it
     mkdir(xDir);
@@ -143,6 +131,5 @@ save(xPath, 'x');
 disp('x has been saved here:')
 disp(xPath)
 
-end
 
-end
+

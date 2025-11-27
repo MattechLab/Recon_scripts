@@ -1,25 +1,23 @@
-function make_slice_gif(matFile, varName, i1, i2, gifName, delay)
+function make_slice_gif(matFile, delay, i1, i2, gifName)
 %MAKESLICEGIF  Create an animated GIF from abs(<volume>) slices.
 %
-%   makeSliceGif(matFile, varName, i1, i2)
-%   makeSliceGif(matFile, varName, i1, i2, gifName, delay)
+%   makeSliceGif(matFile, i1, i2)
+%   makeSliceGif(matFile, i1, i2, delay, gifName)
 %
 %   INPUTS
 %     maxFile  – path to the .mat (MAT-file) that contains the 3-D array
-%     varName  – name of the variable inside the file (e.g. 'x')
-%     i1,i2    – first and last slice to show (along the 3rd dim)
-%     gifName  – (opt) output file, default = '<varName>_slices.gif'
 %     delay    – (opt) frame delay in seconds, default = 0.10 s
+%     i1,i2    – (opt) first and last slice to show (along the 3rd dim)
+%     gifName  – (opt) output file, default = '<varName>_slices.gif'
 %
 %   The script converts each slice to 8-bit grayscale, scales every frame
 %   to its own full dynamic range, and loops forever.
 %
-%   Example
-%     makeSliceGif('volume.max','x',30,80);
 % ---------------- load volume ----------------------
 if isfile(matFile)
-    S = load(matFile, varName);                     % assumes .mat is a MAT-file
-    vol = S.(varName);                         % magnitude
+    S = load(matFile);                     % assumes .mat is a MAT-file
+    fields = fieldnames(S);
+    vol = S.(fields{1});                         % magnitude
 else
     vol = matFile;
 end
@@ -30,24 +28,25 @@ else
     vol = abs(vol);
 end
 
-    
 
-
-gifFolder = fileparts(matFile);
+[gifFolder, varName, ~] = fileparts(matFile);
 % ---------------- default arguments ----------------
+if nargin < 2 || isempty(delay)
+    delay = 0.10;                              % 100 ms per frame
+end
+
 if nargin < 3 || isempty(i1)
     i1 = 1;
 end
 if nargin < 4 || isempty(i2)
     i2 = size(vol,3);
 end
+
 if nargin < 5 || isempty(gifName)
     gifName = [varName '_slices.gif'];
 end
 gifPath = fullfile(gifFolder, gifName);
-if nargin < 6 || isempty(delay)
-    delay = 0.10;                              % 100 ms per frame
-end
+
 
 % sanity-check slice indices
 if i1 < 1 || i2 > size(vol,3) || i1 >= i2

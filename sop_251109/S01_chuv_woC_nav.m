@@ -1,3 +1,4 @@
+
 clc;
 addpath(genpath('/Users/cag/Documents/forclone/Recon_scripts'));
 addpath(genpath('/Users/cag/Documents/forclone/pulseq_v15'));
@@ -47,8 +48,7 @@ meas_name = meas_name_list{datatype};
 hc_name = hc_name_list{datatype};
 bc_name = bc_name_list{datatype};
 
-acquisitionParams.nShot = nShot_list{datatype};
-acquisitionParams.nSeg = nSeg_list{datatype};
+
 
 
 datasetDir = [datasetDir{:}];
@@ -65,9 +65,19 @@ arrayCoilFile = [datasetDir, hc_name];
 flagSS = 1; % filter non SS off
 flagExcludeSI = 1; % filter SI off
 acquisitionParams = bmMriAcquisitionParam([]);
+acquisitionParams.nShot = nShot_list{datatype};
+acquisitionParams.nSeg = nSeg_list{datatype};
 % Siemens-specific data extraction logic
 % 0: 4 samples 1: 480 samples
-myTwix = mapVBVD_JH_for_hemo(measureFile, 'fidnav', 1);
+
+acquisitionParams.nCh = 42;
+acquisitionParams.N = 480;
+acquisitionParams.FoV = 240;
+acquisitionParams.nEcho = 1;
+acquisitionParams.nShot_off = 14;
+acquisitionParams.selfNav_flag = flagExcludeSI;
+NavReadoutSize= acquisitionParams.nShot * acquisitionParams.nSeg * 2;
+%% Unsort the data from myTwix
 % ----------------------------------------
 % The problem is the Twix extracts the data size of [4,42,140536]
 % where: 140536 = 44 (nSeg)*1597(nShot)*[2]
@@ -84,20 +94,15 @@ myTwix = mapVBVD_JH_for_hemo(measureFile, 'fidnav', 1);
 % something like k = k+2, once catch this.NCol = this.NCol(1), another one
 % catch this.NCol = this.NCol(2);
 % ok, now we can read the y with  size of [480, 42, 140536]
-%%
-acquisitionParams.nCh = 42;
-acquisitionParams.N = 480;
-acquisitionParams.FoV = 240;
-acquisitionParams.nEcho = 1;
-acquisitionParams.nShot_off = 14;
-acquisitionParams.selfNav_flag = flagExcludeSI;
 
+% if memory is exceeded from myTwix.image.unsorted(), we can have the
+% readout in the truncated way
+% readouts   = myTwix.image.unsorted(1:2:nLine)
+myTwix = mapVBVD_JH_for_hemo(measureFile, 'fidnav', 0);
+nav_readouts  = myTwix.image.unsorted(1:2:NavReadoutSize);   % all odd-indexed frames
+%%
 
-%%
-readouts   = myTwix.image.unsorted(); % size: [480, 42, 140536]
-%%
-nav_readouts  = readouts(:, :, 1:2:end);   % all odd-indexed frames
-navFile = fullfile(reconDir, 'nav_readouts_4samples.mat');
+navFile = fullfile(reconDir, 'nav_readouts_4samples_2.mat');
 
 if isfile(reconDir) == 0
     mkdir(reconDir);
@@ -105,10 +110,10 @@ end
 save(navFile, 'nav_readouts', '-v7.3');
 disp('nav_readouts has been saved here:')
 disp(navFile);
-%%
-main_readouts = readouts(:, :, 2:2:end);   % all even-indexed frames
 
 %% save the original readout
+myTwix = mapVBVD_JH_for_hemo(measureFile, 'fidnav', 1);
+main_readouts   = myTwix.image.unsorted(2:2:NavReadoutSize); % all even-indexed frames
 main_readout_ori = main_readouts;
 main_readoutFile = fullfile(reconDir, 'main_readouts.mat');
 save(main_readoutFile, 'main_readouts', '-v7.3');

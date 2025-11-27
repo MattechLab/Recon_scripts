@@ -9,12 +9,12 @@
 clc; clear all;
 subject_num = 1;
 meas_name = ['meas', '_MID00332_FID214628_BEAT_LIBREon_eye_(23_09_24)_sc_trigger'];
-% raw_data = ['/Users/cag/Documents/Dataset/datasets/250127_acquisition/', meas_name,'.dat'];
-raw_data = ['/Users/cag/Documents/tmp/Matteo/', ...
-     'meas_MID00100_FID303840_Rad_TR5p46_SP2850_nPC12_BW906_pole_150x89_AU.dat'];
+raw_data = ['/Users/cag/Documents/Dataset/datasets/250127_acquisition/', meas_name,'.dat'];
+% raw_data = ['/Users/cag/Documents/tmp/Matteo/', ...
+     % 'meas_MID00100_FID303840_Rad_TR5p46_SP2850_nPC12_BW906_pole_150x89_AU.dat'];
 twix = mapVBVD_JB(raw_data);
 %%
-twix_img = twix{2};
+twix_img = twix{end};
 PMU = twix_img.PMUdata;
 %%
 sum(sum(PMU.EXT))
@@ -40,7 +40,7 @@ else
     'MREyeTrack_subj3/RawData_MREyeTrack_Subj3/'];  
 end
 
-twix_image2 = twix.twix{1,2};
+twix_image2 = twix.twix{1,end};
 pmuEXT = twix_image2.PMUdata.EXT;
 pmuTimestamp = twix_image2.image.timestamp;
 
@@ -64,37 +64,3 @@ xlabel('time (ms)')
 ylabel('pulse amplitude')
 % figure;
 % plot(time_ms(4000:8000), pmu_ext_table.EXT1(4000:8000), time_ms(4000:8000), pmu_ext_table.EXT2(4000:8000))
-%%
-diff_ms = diff(raw_pmu_mark.PMU_time_ms);
-diff_stamp = diff(raw_pmu_mark.PMU_timestamp);
-disp('The time diff between start of EXT and the first measurement of MRI:')
-diff_start_mri = (raw_pmu_ext.PMU_timestamp(1) - mriTimeStamp(1))*2.5
-disp('The time diff between start of EXT and the first mark of EXT:')
-diff_start_mark = (raw_pmu_ext.PMU_timestamp(1) - raw_pmu_mark.PMU_timestamp(1))*2.5
-disp('the first mark of EXT - the first mri measure:')
-disp(num2str(diff_start_mri - diff_start_mark))
-
-%% Generate a cell report
-report={};
-report{1,1}='pmu_timestp_start'; report{1,2}=raw_pmu_ext.PMU_timestamp(1);
-report{2,1}='pmu_timestp_end'; report{2,2}=raw_pmu_ext.PMU_timestamp(end);
-report{3,1}='pmu_mark_start'; report{3,2}=raw_pmu_mark.PMU_timestamp(1);
-report{4,1}='pmu_mark_end'; report{4,2}=raw_pmu_mark.PMU_timestamp(end);
-report{5,1}='raw_pmu_ext'; report{5,2}=raw_pmu_ext;
-report{6,1}='raw_pmu_mark'; report{6,2}=raw_pmu_mark;
-
-report{7,1}='mri_timestp_start'; report{7,2}=mriTimeStamp(1);
-report{8,1}='mri_timestp_end'; report{8,2}=mriTimeStamp(end);
-report{9,1}='mriTimeStamp'; report{9,2}=mriTimeStamp;
-disp('The report cell is generated!')
-%%
-
-reportPath = ['/home/debi/jaime/acquisitions/MREyeTrack/Twix/' ...
-        'report_subj', num2str(subject_num),'.mat'];
-save(reportPath, 'report');
-disp('report has been saved here:')
-disp(reportPath)
-
-    % - Subject 001:  1309.5466 - 653.1547 
-    % - Subject 002:  914.2604 - 257.8359 
-    % - Subject 003:  775.1672 - 118.7039 

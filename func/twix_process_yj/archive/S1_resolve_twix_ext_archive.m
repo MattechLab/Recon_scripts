@@ -5,11 +5,11 @@
 clc; clear all;
 subject_num = 1;
 meas_name = ['meas', '_MID00332_FID214628_BEAT_LIBREon_eye_(23_09_24)_sc_trigger'];
-raw_data = ['/Users/cag/Documents/Dataset/250127_acquisition/',meas_name,'.dat'];
+raw_data = ['/Users/cag/Documents/Dataset/datasets/250127_acquisition/', meas_name,'.dat'];
 
 twix = mapVBVD_JB(raw_data);
 %%
-twix_img = twix{2};
+twix_img = twix{end};
 PMU = twix_img.PMUdata;
 sum(sum(PMU.EXT))
 sum(sum(PMU.raw.EXT.data))
@@ -22,7 +22,7 @@ if subject_num == 1
     rawdata_name = meas_name;
     twix = load(['/Users/cag/Documents/Dataset/250127_acquisition/' ...
         'twix_MID00332_FID214628_BEAT_LIBREon_eye_(23_09_24)_sc_trigger.mat']);
-    datadir = ['/Users/cag/Documents/Dataset/250127_acquisition'];  
+    datadir = ['/Users/cag/Documents/Dataset/datasets/250127_acquisition'];  
 elseif subject_num == 2
     rawdata_name = 'meas_MID00580_FID182834_BEAT_LIBREon_eye_(23_09_24)';
     twix = load(['/Users/cag/Documents/Dataset/MREyeTrack/' ...
@@ -37,7 +37,7 @@ else
     'MREyeTrack_subj3/RawData_MREyeTrack_Subj3/'];  
 end
 
-twix_image2 = twix.twix{1,2};
+twix_image2 = twix.twix{1,end};
 rawEXT = twix_image2.PMUdata.raw.EXT;
 rawTimestamp = twix_image2.PMUdata.raw.EXT.TimeStamp;
 rawEXTData = twix_image2.PMUdata.raw.EXT.data;
@@ -53,9 +53,9 @@ raw_pmu_ext = array2table([rawTimestamp'; rawTime_ms(:)' ; ext1(:)'; ext2(:)']',
 
 
 %%
-rawdatafile = fullfile(datadir,strcat(rawdata_name, '.dat')); 
+
  
-twix_obj = mapVBVD_JH(rawdatafile);
+twix_obj = mapVBVD_JH_for_monalisa(raw_data);
 twix_obj = twix_obj{end};
 % time stamps from the rawdata
 mriTimeStamp       = double( twix_obj.image.timestamp );
