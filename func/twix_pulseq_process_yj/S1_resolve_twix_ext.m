@@ -59,7 +59,7 @@ pmu_mark_table = pmu_ext_table;
 pmu_mark_table((pmu_ext_table.EXT1 == 0) & (pmu_ext_table.EXT2 == 0),:)=[];
 %%
 figure;
-plot(time_ms(1:10*1000), pmu_ext_table.EXT1(1:10*1000), time_ms(1:10*1000), pmu_ext_table.EXT2(1:10*1000))
+plot(time_ms, pmu_ext_table.EXT1, time_ms, pmu_ext_table.EXT2)
 xlabel('time (ms)')
 ylabel('pulse amplitude')
 % figure;
