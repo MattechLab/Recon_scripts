@@ -48,7 +48,7 @@ else
 end
 
 if iscell(twix_obj_multi)
-    twix_obj = twix_obj_multi{2};
+    twix_obj = twix_obj_multi{end};  % Use the last element which usually contains the imaging data
 else
     twix_obj = twix_obj_multi;
 end
