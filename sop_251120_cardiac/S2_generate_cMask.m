@@ -11,9 +11,9 @@ save_trigger = false;
 %%
 % myTwix = mapVBVD_JH_for_hemo(raw_data, 'fidnav', 0);
 myTwix = mapVBVD_JB(raw_data);
-kdata_rawFR_save  = myTwix{1,2}.image.unsorted();   
+kdata_rawFR_save  = myTwix{1,end}.image.unsorted();   
 %%
-param = extract_pmu(myTwix{2}, 1, 1);
+param = extract_pmu(myTwix{end}, 1, 1);
 %%
 
 SegmentFR = 22; %Free running, same setting with Mathieu

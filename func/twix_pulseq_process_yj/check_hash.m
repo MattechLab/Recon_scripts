@@ -45,8 +45,8 @@ twixObj        = mapVBVD_JB(rawDataFile);
 
 twix_idx = 1;
 seqHash_twix   = char(twixObj{twix_idx}.hdr.Dicom.tSequenceVariant);  % already 32 chars
-while numel(seqHash_twix) ~= 32
-    warning('Sequence hash in TWIX %d header is not 32 characters – aborting.', ...
+while isempty(seqHash_twix)
+    warning('Sequence hash in TWIX %d header is empty – aborting.', ...
         twix_idx);
     twix_idx = twix_idx+1;
     seqHash_twix   = char(twixObj{twix_idx}.hdr.Dicom.tSequenceVariant);  % already 32 chars

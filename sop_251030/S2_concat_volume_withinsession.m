@@ -46,7 +46,12 @@ x8_trans = permute(norm_image(x{8}), [3,1,2]);
 %%
 % compare idile time mask_JB_321p18_40 vs. mask_JB_646p92_40
 bmImage(cat(2, x1_trans, x3_trans));
+cal_roi_mask(x1_trans(:,:,87), 'circle', 1, 0, 'JB_321p18');
+slice_1 = x1_trans(:,:,87);
+slice_3 = x3_trans(:,:,87);
 
+snr_1 = calSNR(slice_1(maskROI_JB_321p18), slice_1(maskBg));
+snr_3 = calSNR(slice_3(maskROI_JB_321p18), slice_3(maskBg));
 %% 
 % compare t2-prep duration
 % mask_JB_646p92_40 mask_JB_646p92_60 mask_JB_646p92_80
@@ -55,6 +60,40 @@ bmImage(cat(2, x2_trans, x7_trans, x4_trans));
 % compare t2-prep duration
 % mask_pq_wurst_40 mask_pq_wurst_60 mask_pq_wurst_60
 bmImage(cat(2, x3_trans, x8_trans, x5_trans));
+for ii = 11:14
+    note_suffix = 'pq_long';
+    if ii==1
+        selectBack = 1;
+    else
+        selectBack = 0;
+    end
+    cal_roi_mask(x5_trans(:,:,87), 'circle', selectBack, 0, note_suffix);
+    
+    slice_3 = x3_trans(:,:,87);
+    slice_8 = x8_trans(:,:,87);
+    slice_5 = x5_trans(:,:,87);
+    
+    snr_3(ii) = calSNR(slice_1(maskROI_pq_long), slice_3(maskBg));
+    snr_8(ii) = calSNR(slice_3(maskROI_pq_long), slice_8(maskBg));
+    snr_5(ii) = calSNR(slice_5(maskROI_pq_long), slice_5(maskBg));
+
+end
+
+%% Plot
+ 
+figure; hold on;
+for ii = 1:10
+   
+    if snr_3(ii)<snr_5(ii)
+         ii
+    else
+    plot([40, 80], [snr_3(ii) snr_5(ii)], '-o', 'LineWidth', 2, 'DisplayName', num2str(ii) ); hold on; grid on;
+    end
+    xlabel('tao (ms)', 'FontSize',16); ylabel('SNR_{std}', 'FontSize',16)
+
+
+end
+
 
 
 %% Joint comparison
@@ -62,6 +101,18 @@ x_jb = cat(2, x2_trans, x7_trans, x4_trans);
 
 x_pq = cat(2, x3_trans, x8_trans, x5_trans);
 bmImage(cat(1,x_jb,x_pq));
+
+%% compair Idle time 
+% x_pq_short_40 vs x_pq_long_40
+
+bmImage(cat(2, x2_trans, x4_trans));
+cal_roi_mask(x2_trans(:,:,87), 'circle', 1, 0, 'pq_40');
+slice_2 = x2_trans(:,:,87);
+slice_4 = x4_trans(:,:,87);
+
+snr_2 = calSNR(slice_2(maskROI_pq_40), slice_2(maskBg));
+snr_4 = calSNR(slice_4(maskROI_pq_40), slice_4(maskBg));
+
 %%
 img_1_2_trans = cat(1,x3_trans, x5_trans);
 bmImage(img_1_2_trans)
