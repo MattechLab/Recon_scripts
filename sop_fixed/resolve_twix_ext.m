@@ -1,4 +1,4 @@
-function stop_time_ms = resolve_twix_ext(baseFolder, plotPMU, generateReport)
+function TimeDiff_ms = resolve_twix_ext(baseFolder, plotPMU, generateReport)
 %% resolve_twix_ext
 % Yiwei Jia  - organized version
 %
@@ -105,8 +105,9 @@ end
 % Convert timestamps to relative time in ms (preserving your 2.5 factor)
 time_ms = (mriTimestamp - mriTimestamp(1)) * 2.5;
 stop_time_ms = time_ms(end);
-
-disp(['Duration based on timestamps (ms): ', num2str(stop_time_ms)]);
+start_time_ms = time_ms(1);
+TimeDiff_ms = stop_time_ms - start_time_ms;
+disp(['Duration based on timestamps (ms): ', num2str(TimeDiff_ms)]);
 
 ext1 = double(pmuEXT(1, :));
 ext2 = double(pmuEXT(2, :));

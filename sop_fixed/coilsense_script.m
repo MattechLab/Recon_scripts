@@ -1,7 +1,8 @@
 %% Init
+function [C1, reconDir] = coilsense_script(baseFolder)
 clc; clearvars;
 
-baseFolder = '/mnt/filer01/MatTechLab/yiwei.jia/';
+
 %% === User Input Section ===
 % Open file dialogs for sequence and raw data files
 
@@ -139,30 +140,7 @@ nIter = 5;
 % Display Results
 bmImage(C1);
 %% 
-check_orient_xrms(baseFolder);
-%%
-C = C1;
-for iCh = 1:size(C1,4)
-    C(:,:,:,iCh) = flip(permute(C1(:,:,:,iCh), [2 1 3]),1);
-    % C(:,:,:,iCh) = flip(permute(C(:,:,:,iCh), [2 1 3]),2);
-end
-bmImage(C)
-%% Save C into the folder
-
-saveCDir = [reconDir, '/C/'];
-
-CfileName = 'C.mat';
-
-% Create the folder if it doesn't exist
-if ~exist(saveCDir, 'dir')
-    mkdir(saveCDir);
 end
 
-% Full path to  C file
-CfilePath = fullfile(saveCDir, CfileName);
 
-% Save the matrix C to the .mat file
-save(CfilePath, 'C');
-disp('Coil sensitivity C has been saved here:')
-disp(CfilePath)
 
