@@ -76,8 +76,12 @@ for idx = 1:count
     % Example data
     % import eMask
     if import_eMask
-        
-        eMask = eMask_set{idx}.eMask;
+        eMask = eMask_set{idx}; 
+        fields = fieldnames(eMask);  % Get the field names
+        firstField = fields{1};  % Get the first field name
+        eMask = eMask.(firstField);  % Access the first field's value
+
+  
         % Expand the mask to apply across dimensions
         eMask = reshape(eMask, [1, ntviews, 1]);         % shape [1, ntviews, 1]
         eMask = repmat(eMask, [480, 1, 3]);          % shape [480, ntviews, 3]
@@ -167,7 +171,7 @@ function [S, matPaths] = load_eMasks(rootDir)
             warning('Skipping non-existent folder: %s', rd);
             continue;
         end
-        mats_i = dir(fullfile(rd, '**', '*.mat'));  % recursive
+        mats_i = dir(fullfile(rd, '**', 'eMask*.mat'));  % recursive
         mats_i = mats_i(~[mats_i.isdir]);           % safety
         matsAll = [matsAll; mats_i]; %#ok<AGROW>
     end

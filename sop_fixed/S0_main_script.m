@@ -28,12 +28,13 @@ CalR_script(import_eMask, matwoBinFolder, seqParams)
 % ET mask from edf on mac jupyter notebook
 %%
 info = create_folders_from_et_masks();
+%%
 th_ratio = 0.9;
 nShotOff = 14; 
 nSeg = 44; 
 winLen = 3;
-cri='accR';
-eyeMask_from_info(info, [], th_ratio, nShotOff, nSeg, winLen, cri);
+% keep the mask suffix as 'test', fix it if no need to change.
+eyeMask_from_info(info, [], th_ratio, nShotOff, nSeg, winLen, 'test');
 %% calculate the coverage for each eyeMask
 [seqName, seqFolder] = uigetfile('*.seq', 'Select main sequence file', baseFolder);
 if seqName == 0
