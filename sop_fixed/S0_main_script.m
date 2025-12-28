@@ -1,5 +1,5 @@
 baseFolder = '/mnt/filer01/MatTechLab/yiwei.jia/';
-[C1, reconDir] = coilsense_script(baseFolder);
+[C1, reconDir, prescan_seqParam] = coilsense_script(baseFolder);
 [xrms,x0] = check_orient_xrms(baseFolder);
 bmImage(C1); bmImage(x0);
 %%
@@ -16,6 +16,15 @@ plotPMU=0; generateReport=0;
 TimeDiff_ms = resolve_twix_ext(baseFolder, plotPMU, generateReport);
 %%
 % mitosius woBin and reconstruction on HPC
+
+[matwoBinName, matwoBinFolder] = uigetfile('*.mat', 'Select eMask_woBin.mat file', baseFolder);
+if matwoBinName == 0
+    error('Binning mask without binning file selection was cancelled');
+end
+matwoBinFolder
+import_eMask = 1;
+CalR_script(import_eMask, matwoBinFolder, seqParams)
+%% T1_Binning
 % ET mask from edf on mac jupyter notebook
 %%
 info = create_folders_from_et_masks();
@@ -25,5 +34,16 @@ nSeg = 44;
 winLen = 3;
 cri='test';
 eyeMask_from_info(info, [], th_ratio, nShotOff, nSeg, winLen, cri);
+%% calculate the coverage for each eyeMask
+[seqName, seqFolder] = uigetfile('*.seq', 'Select main sequence file', baseFolder);
+if seqName == 0
+    error('Sequence file selection was cancelled');
+end
+seqFile = fullfile(seqFolder, seqName);
+seqParams = extract_seq_params(seqFile);
+seqParams.seqFile = seqFile;
 %%
+import_eMask = 1;
+eMask_folder = info.maskFolders;
+CalR_script(import_eMask, eMask_folder, seqParams)
 % mitosius Binning and reconstruction on HPC

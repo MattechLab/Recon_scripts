@@ -1,5 +1,5 @@
 %% Init
-function [C1, reconDir] = coilsense_script(baseFolder)
+function [C1, reconDir, prescan_seqParams] = coilsense_script(baseFolder)
 clc; clearvars;
 
 
@@ -57,7 +57,7 @@ reconDir = fullfile(parentDir, [MID '_recon_C']);
 % Sequence file (already selected by user)
 seqFile = fullfile(seqFolder, seqName);
 seqParams = extract_seq_params(seqFile);
-
+prescan_seqParams = seqParams;
 
 bodyCoilreader = createRawDataReader(bodyCoilFile, true);
 if isfield(seqParams, 'nshot')
