@@ -1,43 +1,58 @@
-function cMask = eyeGenerateBinningWin(datasetDir, nShotOff, nSeg,th_ratio, ETDir, winLen, display_binning)
+function cMask = eyeGenerateBinningWin(datasetDir, nShotOff, nSeg,th_ratio, ETDir, winLen, display_binning, ...
+    user_input, input_info)
+
+    if nargin<8 || isempty(user_input)
+        user_input = 1;
+        input_info = NaN;
+    end
+
+    % winLen: the number of MR readouts
     param.basedir = datasetDir;
     basedir = param.basedir;
     param.batchParam = [];
 
-    % Prompt user to select Siemens Raw Data file
-    %--------------------------------------------------------------------------
+    if user_input
+        % Prompt user to select Siemens Raw Data file
+        %--------------------------------------------------------------------------
+    
+        [rawDataName, rawDataDir, ~] = uigetfile( ...
+        { '*.dat','Siemens raw data file (*.dat)'}, ...
+           'Pick a raw data file', ...
+           'MultiSelect', 'off', datasetDir);
+    
+        if rawDataName == 0
+            warning('No file selected');
+            return;
+        end
 
-    [rawDataName, rawDataDir, ~] = uigetfile( ...
-    { '*.dat','Siemens raw data file (*.dat)'}, ...
-       'Pick a raw data file', ...
-       'MultiSelect', 'off', datasetDir);
-
-    if rawDataName == 0
-        warning('No file selected');
-        return;
+    %-------------------------------------------------------------------------- 
+    % How to select the number of bins?
+        prompt        = {'Enter the number of bins'};
+        name          = '#Bins';
+        numlines      = 1;
+        defaultanswer = {'1'};
+        answer        = inputdlg(prompt,name,numlines,...
+                               defaultanswer);
+        
+      % Check if the user selected cancel
+        if isempty(answer)
+            warning('The user selected cancel');
+            return;
+        end  
+      % Convert string answer to number
+        nbins = str2double(answer{1});
+    
+    else
+        disp('User input is deactivated!')
+        nbins = input_info.nbins;
+        rawDataName = input_info.rawDataName;
+        rawDataDir = input_info.rawDataDir;
     end
 
-%-------------------------------------------------------------------------- 
-% How to select the number of bins?
-    prompt        = {'Enter the number of bins'};
-    name          = '#Bins';
-    numlines      = 1;
-    defaultanswer = {'1'};
-    answer        = inputdlg(prompt,name,numlines,...
-                           defaultanswer);
-    
-  % Check if the user selected cancel
-    if isempty(answer)
-        warning('The user selected cancel');
-        return;
-    end  
-  % Convert string answer to number
-    nbins = str2double(answer{1});
-    param.nBins = nbins;
 
-    costTime = 2.5;
+    param.nBins = nbins;
     param.batchParam.rawDataName    = rawDataName;
     param.batchParam.rawDataDir     = rawDataDir;
-
     [ twix_obj, param ] = dataSelectionAndLoading( basedir, param );
     % Load the PMUTime and TimeStamp, shift the TimeStamp to the beginning
     % of 0
@@ -47,6 +62,7 @@ function cMask = eyeGenerateBinningWin(datasetDir, nShotOff, nSeg,th_ratio, ETDi
     %
     TimeStamp       = TimeStamp - min(TimeStamp);
     % Do not forget to scale the times by costTime (Setting from Siemens)
+    costTime = 2.5;
     PMUTimeStamp_ms = PMUTimeStamp * costTime;
     PMUTimeStamp_s  = PMUTimeStamp_ms / 1000;
     TimeStamp_ms    = TimeStamp * costTime;
@@ -77,18 +93,22 @@ function cMask = eyeGenerateBinningWin(datasetDir, nShotOff, nSeg,th_ratio, ETDi
 
     for idx_bin = 1:nbins
         % Prompt user to select generated mask file from ET data (.mat)
+        if user_input
+            [maskDataName, maskDataDir, ~] = uigetfile( ...
+            { '*.mat','Generated mask data file (*.mat)'}, ...
+               'Pick a eye tracking mask file', ...
+               'MultiSelect', 'off', ETDir);
     
-        [maskDataName, maskDataDir, ~] = uigetfile( ...
-        { '*.mat','Generated mask data file (*.mat)'}, ...
-           'Pick a eye tracking mask file', ...
-           'MultiSelect', 'off', ETDir);
-
-        if maskDataName == 0
-            warning('No mask file selected');
-            return;
+            if maskDataName == 0
+                warning('No mask file selected');
+                return;
+            end
+            filepathMaskData = fullfile(maskDataDir, maskDataName);
+            disp(filepathMaskData);
+        else
+            filepathMaskData = input_info.filepathMaskData{idx_bin};
+            disp(['filepathMaskData: ', filepathMaskData]);
         end
-        filepathMaskData = fullfile(maskDataDir, maskDataName);
-        disp(filepathMaskData);
 
         mask_method_1 = load(filepathMaskData);
         if isstruct(mask_method_1)
@@ -128,7 +148,7 @@ function cMask = eyeGenerateBinningWin(datasetDir, nShotOff, nSeg,th_ratio, ETDi
                 end
             end
 
-            if mod(k, 22)  == 1
+            if mod(k, nSeg)  == 1
                 binMaskMatrix( k, idx_bin) = 0;
             end
 

@@ -32,7 +32,7 @@ th_ratio = 0.9;
 nShotOff = 14; 
 nSeg = 44; 
 winLen = 3;
-cri='test';
+cri='accR';
 eyeMask_from_info(info, [], th_ratio, nShotOff, nSeg, winLen, cri);
 %% calculate the coverage for each eyeMask
 [seqName, seqFolder] = uigetfile('*.seq', 'Select main sequence file', baseFolder);
@@ -46,4 +46,6 @@ seqParams.seqFile = seqFile;
 import_eMask = 1;
 eMask_folder = info.maskFolders;
 CalR_script(import_eMask, eMask_folder, seqParams)
-% mitosius Binning and reconstruction on HPC
+%% mitosius Binning and reconstruction on HPC
+% bash submit_all.sh
+
